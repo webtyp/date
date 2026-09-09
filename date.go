@@ -124,6 +124,80 @@ func WeekdayName(w int) string {
 	}
 }
 
+// Weekday indexes, the convention Weekday returns and WeekdayName reads.
+// They exist so a call site says which day it means: SetFirstWeekday(Monday)
+// instead of SetFirstWeekday(1).
+const (
+	Sunday = iota
+	Monday
+	Tuesday
+	Wednesday
+	Thursday
+	Friday
+	Saturday
+)
+
+// firstWeekday is the day a week starts on for presentation. Monday by
+// default: most of the world — and every Spanish-speaking locale — reads a
+// calendar that way, and a grid that opens on Sunday reads as wrong there.
+// The ISO-8601 week starts on Monday too.
+//
+// This is the ONE place that decision lives. Before it existed, each consumer
+// re-derived it inline (components/calendarslider carried a bare
+// "(Weekday(y,m,1) + 6) % 7 // 0 = lunes"), which is how two calendars in one
+// app end up disagreeing and why changing it meant editing every one of them.
+var firstWeekday = Monday
+
+// FirstWeekday reports the weekday a week starts on. Monday unless the app
+// changed it.
+func FirstWeekday() int {
+	return firstWeekday
+}
+
+// SetFirstWeekday changes the day a week starts on, for a locale that reads
+// its calendars differently — SetFirstWeekday(Sunday) for the US. Out-of-range
+// values are ignored, so a bad argument leaves the default standing instead of
+// producing a calendar with no first column.
+//
+// Call it once, where the app configures its locale (the same file that calls
+// lang.OutLang), never from a library: a library that sets it decides for every
+// app that imports it.
+func SetFirstWeekday(w int) {
+	if w < Sunday || w > Saturday {
+		return
+	}
+	firstWeekday = w
+}
+
+// WeekColumn returns the 0-based column w occupies in a week laid out from
+// FirstWeekday — 0 for the first column, 6 for the last. With the Monday
+// default, Monday is 0 and Sunday is 6.
+//
+// This is what a calendar grid needs to place a month's first day, and what a
+// day picker needs to sort its chips.
+func WeekColumn(w int) int {
+	c := (w - firstWeekday) % 7
+	if c < 0 {
+		c += 7
+	}
+	return c
+}
+
+// WeekOrder returns the seven weekday indexes in presentation order, starting
+// at FirstWeekday — the inverse of WeekColumn. With the Monday default:
+// [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday].
+//
+// A component renders its day headers or day chips by ranging over this
+// instead of counting 0..6, which is what makes the order follow the app's
+// locale rather than each component's own assumption.
+func WeekOrder() [7]int {
+	var out [7]int
+	for i := 0; i < 7; i++ {
+		out[i] = (firstWeekday + i) % 7
+	}
+	return out
+}
+
 // ParseMonthKey reads "YYYY-MM" (or the "YYYY-MM-DD" form, ignoring the
 // day); returns (0, 0) if s is not a valid month key.
 func ParseMonthKey(s string) (year, month int) {
