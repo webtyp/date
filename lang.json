@@ -1,0 +1,24 @@
+{
+  "languages": ["es"],
+  "keys": {
+    "April": ["Abril"],
+    "August": ["Agosto"],
+    "December": ["Diciembre"],
+    "February": ["Febrero"],
+    "Friday": ["Viernes"],
+    "January": ["Enero"],
+    "July": ["Julio"],
+    "June": ["Junio"],
+    "March": ["Marzo"],
+    "May": ["Mayo"],
+    "Monday": ["Lunes"],
+    "November": ["Noviembre"],
+    "October": ["Octubre"],
+    "Saturday": ["Sábado"],
+    "September": ["Septiembre"],
+    "Sunday": ["Domingo"],
+    "Thursday": ["Jueves"],
+    "Tuesday": ["Martes"],
+    "Wednesday": ["Miércoles"]
+  }
+}
