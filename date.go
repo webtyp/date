@@ -7,9 +7,10 @@
 // backend, and needs no build-tag split.
 //
 // Every calendar-unit name this package returns (MonthName, WeekdayName) is
-// English — the canonical, untranslated form. A consumer that wants any
-// other language translates it via webtyp.com/fmt/lang; this
-// package does not import that dependency or make that decision itself.
+// English — the canonical, untranslated form and the translation key. The
+// translations ship as data in this module's lang.json (merged into the page by
+// sitec); a consumer shows a name with lang.Translate (webtyp.com/lang). This
+// package does not import lang or choose a language itself.
 package date
 
 import "webtyp.com/fmt"
