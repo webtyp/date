@@ -149,3 +149,28 @@ func TestParseDateKey(t *testing.T) {
 		t.Errorf("ParseDateKey(not-a-date) = %d, %d, %d, want 0, 0, 0", y, m, d)
 	}
 }
+
+func TestDaysSinceEpochAndRoundTrip(t *testing.T) {
+	cases := []struct {
+		y, m, d  int
+		wantDays int64
+	}{
+		{1970, 1, 1, 0},
+		{1970, 1, 2, 1},
+		{1969, 12, 31, -1},
+		{2000, 1, 1, 10957},
+		{2024, 2, 29, 19782}, // Leap year
+		{2025, 1, 6, 20094},
+		{2026, 3, 2, 20514},
+	}
+	for _, c := range cases {
+		got := DaysSinceEpoch(c.y, c.m, c.d)
+		if got != c.wantDays {
+			t.Errorf("DaysSinceEpoch(%d, %d, %d) = %d, want %d", c.y, c.m, c.d, got, c.wantDays)
+		}
+		ry, rm, rd := FromDaysSinceEpoch(got)
+		if ry != c.y || rm != c.m || rd != c.d {
+			t.Errorf("FromDaysSinceEpoch(%d) = (%d, %d, %d), want (%d, %d, %d)", got, ry, rm, rd, c.y, c.m, c.d)
+		}
+	}
+}

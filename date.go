@@ -240,3 +240,48 @@ func MonthKey(year, month int) string {
 func DateKey(year, month, day int) string {
 	return fmt.Sprintf("%04d-%02d-%02d", year, month, day)
 }
+
+// DaysSinceEpoch returns the number of days between 1970-01-01 (Unix epoch)
+// and (year, month, day) in the Gregorian calendar. Pure arithmetic, O(1),
+// zero allocations.
+func DaysSinceEpoch(year, month, day int) int64 {
+	y := year
+	m := month
+	d := day
+	if m <= 2 {
+		y--
+		m += 9
+	} else {
+		m -= 3
+	}
+	era := y / 400
+	if y < 0 && y%400 != 0 {
+		era--
+	}
+	yoe := y - era*400
+	doy := (153*m+2)/5 + d - 1
+	doe := yoe*365 + yoe/4 - yoe/100 + doy
+	return int64(era)*146097 + int64(doe) - 719468
+}
+
+// FromDaysSinceEpoch returns (year, month, day) for days elapsed since 1970-01-01.
+// Pure arithmetic, O(1), zero allocations.
+func FromDaysSinceEpoch(days int64) (year, month, day int) {
+	z := days + 719468
+	era := z / 146097
+	if z < 0 && z%146097 != 0 {
+		era--
+	}
+	doe := int(z - era*146097)
+	yoe := (doe - doe/1460 + doe/36524 - doe/146096) / 365
+	y := int(era)*400 + yoe
+	doy := doe - (365*yoe + yoe/4 - yoe/100)
+	mp := (5*doy + 2) / 153
+	d := doy - (153*mp+2)/5 + 1
+	m := mp + 3
+	if mp >= 10 {
+		y++
+		m -= 12
+	}
+	return y, m, d
+}
